@@ -19,6 +19,7 @@ project/
 │   ├── confusion_matrix_finetune.png         # Confusion matrix
 │   └── per_class_metrics.png                 # Bar chart of class metrics
 ```
+```
 To train the model donwload Kaggles brain tumor dataset of MRI scans and create folders in the same directory as brain_tumor_dataset and for fine tuning create the directories:
 brain_tumor_extra_data/
 ├── glioma/
@@ -29,6 +30,7 @@ and
 ├── combined_dataset/
 │   ├── Training/
 │   └── Testing/
+```
 ---
 
 ## 🚀 Features
