@@ -71,9 +71,7 @@ Make sure the `resnet18_brain_tumor_finetuned.pth` file is present in `brain_tum
 python app.py
 ```
 
-App will be available at: `http://localhost:5000`
 
----
 
 ## 🧪 Inference: `/predict` Endpoint
 
@@ -113,7 +111,8 @@ The model achieved **overall accuracy ranging between 97% to 99%** during valida
 
 ### 📈 Training Metrics
 
-<img src="brain_tumor_model/training_metrics_finetune.png" width="700">
+<img width="1200" height="600" alt="training_metrics_finetune" src="https://github.com/user-attachments/assets/134bef0a-d1a8-4065-890d-99e4f4694e98" />
+
 
 ### 🔍 Per-Class Metrics
 
