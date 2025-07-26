@@ -1,103 +1,144 @@
 import os
-from flask import Flask, request, render_template, jsonify
-import torch
-from torchvision import transforms, models
-from PIL import Image
-import torch.nn as nn
-import io
 import numpy as np
+from PIL import Image
+import torch
+import torch.nn as nn
+from torchvision import transforms, models
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, send_from_directory
 
 app = Flask(__name__)
+app.secret_key = 'your_secret_key'
+app.config['UPLOAD_FOLDER'] = 'uploads'
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB limit
+os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
-# --- Model Definition (must match your training script) ---
+# Define classes (must match training order)
+CLASS_NAMES = ['glioma', 'meningioma', 'notumor', 'pituitary']
+
+# Model architecture (must match training)
 class ResNetFineTuned(nn.Module):
     def __init__(self, num_classes=4):
         super(ResNetFineTuned, self).__init__()
-        self.model = models.resnet18(pretrained=True)
-        # Freeze all parameters initially
+        weights = models.ResNet18_Weights.IMAGENET1K_V1
+        self.model = models.resnet18(weights=weights)
+        
+        # Freeze layers
         for param in self.model.parameters():
             param.requires_grad = False
-        # Unfreeze layer3, layer4, and fc
+            
+        # Unfreeze deeper layers
         for name, child in self.model.named_children():
             if name in ['layer3', 'layer4', 'fc']:
                 for param in child.parameters():
                     param.requires_grad = True
+                    
+        # Modify the classifier
         in_features = self.model.fc.in_features
         self.model.fc = nn.Sequential(
             nn.Linear(in_features, 512),
+            nn.BatchNorm1d(512),
             nn.ReLU(),
-            nn.Dropout(0.3),
+            nn.Dropout(0.5),
             nn.Linear(512, num_classes)
         )
 
     def forward(self, x):
         return self.model(x)
 
-# --- Load the Model ---
-MODEL_PATH = 'brain_tumor_model/resnet18_brain_tumor_finetuned.pth' # Make sure this path is correct
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-model = ResNetFineTuned(num_classes=4).to(device)
-try:
-    # Ensure the model is loaded correctly. If it was saved with DataParallel, need to adjust.
-    state_dict = torch.load(MODEL_PATH, map_location=device)
-    # If the model was saved with DataParallel, keys might have 'module.' prefix
-    new_state_dict = {}
-    for k, v in state_dict.items():
-        if k.startswith('module.'):
-            new_state_dict[k[7:]] = v  # remove 'module.' prefix
-        else:
-            new_state_dict[k] = v
-    model.load_state_dict(new_state_dict)
+# Load the trained model
+def load_model():
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model = ResNetFineTuned(num_classes=4).to(device)
+    model_path = 'brain_tumor_model/resnet18_brain_tumor.pth'
+    
+    try:
+        model.load_state_dict(torch.load(model_path, map_location=device))
+    except:
+        # Handle potential architecture mismatch
+        model = torch.load(model_path, map_location=device)
+    
     model.eval()
-    print(f"Model loaded successfully from {MODEL_PATH} on {device}")
-except Exception as e:
-    print(f"Error loading model: {e}")
-    # Handle the error, perhaps exit or set a flag to prevent predictions
+    return model, device
 
-# --- Image Transformations (must match your training transform) ---
-preprocess = transforms.Compose([
-    transforms.Resize((150, 150)),
+# Preprocessing transform (must match validation transform)
+transform = transforms.Compose([
+    transforms.Resize((224, 224)),
     transforms.ToTensor(),
     transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
 ])
 
-# --- Class Names (based on your dataset) ---
-# Make sure these match the order your ImageFolder assigned during training
-CLASS_NAMES = ['glioma', 'meningioma', 'no_tumor', 'pituitary']
+# Prediction function
+def predict_image(image_path):
+    # Load and preprocess image
+    img = Image.open(image_path).convert('RGB')
+    img_tensor = transform(img).unsqueeze(0)  # Add batch dimension
+    
+    # Load model
+    model, device = load_model()
+    img_tensor = img_tensor.to(device)
+    
+    # Make prediction
+    with torch.no_grad():
+        outputs = model(img_tensor)
+        probabilities = torch.nn.functional.softmax(outputs, dim=1)
+        conf, preds = torch.max(probabilities, 1)
+    
+    # Convert to human-readable results
+    class_name = CLASS_NAMES[preds.item()]
+    confidence = conf.item() * 100
+    
+    # Get class-wise probabilities
+    class_probs = {CLASS_NAMES[i]: f"{probabilities[0][i].item()*100:.2f}%" 
+                   for i in range(len(CLASS_NAMES))}
+    
+    return class_name, confidence, class_probs
 
 @app.route('/')
-def index():
+def home():
     return render_template('index.html')
 
-@app.route('/predict', methods=['POST'])
-def predict():
+@app.route('/scan')
+def scan():
+    return render_template('scan.html')
+
+@app.route('/about')
+def about():
+    return render_template('about.html')
+
+@app.route('/api/predict', methods=['POST'])
+def api_predict():
     if 'file' not in request.files:
-        return jsonify({'error': 'No file part'})
+        return jsonify({'error': 'No file part'}), 400
+    
     file = request.files['file']
     if file.filename == '':
-        return jsonify({'error': 'No selected file'})
-    if file:
-        try:
-            image_bytes = file.read()
-            image = Image.open(io.BytesIO(image_bytes)).convert('RGB')
-            input_tensor = preprocess(image)
-            input_batch = input_tensor.unsqueeze(0).to(device) # Add a batch dimension
+        return jsonify({'error': 'No selected file'}), 400
+    
+    try:
+        # Save the file temporarily
+        filename = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
+        file.save(filename)
+        
+        # Make prediction
+        class_name, confidence, class_probs = predict_image(filename)
+        
+        # Remove temporary file
+        os.remove(filename)
+        
+        # Create result dictionary
+        result = {
+            'class': class_name,
+            'confidence': f"{confidence:.2f}%",
+            'probabilities': class_probs
+        }
+        
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({'error': f'Error processing image: {str(e)}'}), 500
 
-            with torch.no_grad():
-                output = model(input_batch)
-                probabilities = torch.softmax(output, dim=1)
-                confidence, predicted_idx = torch.max(probabilities, 1)
-
-            predicted_class = CLASS_NAMES[predicted_idx.item()]
-            confidence_score = confidence.item() * 100 # Convert to percentage
-
-            return jsonify({
-                'prediction': predicted_class,
-                'confidence': f'{confidence_score:.2f}%'
-            })
-        except Exception as e:
-            return jsonify({'error': f'Prediction error: {e}'})
+@app.route('/uploads/<filename>')
+def uploaded_file(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 if __name__ == '__main__':
-    app.run(debug=True) # Set debug=False for production
+    app.run(host='0.0.0.0', port=5000, debug=True)
