@@ -166,7 +166,7 @@ Loss Function	Weighted CrossEntropyLoss
 
 
 
-## 📬 Credits
+### 📬 Credits
 
 Developed with ❤️ using:
 
