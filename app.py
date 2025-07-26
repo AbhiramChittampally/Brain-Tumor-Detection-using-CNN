@@ -34,7 +34,7 @@ class ResNetFineTuned(nn.Module):
         return self.model(x)
 
 # --- Load the Model ---
-MODEL_PATH = 'resnet18_brain_tumor_finetuned.pth' # Make sure this path is correct
+MODEL_PATH = 'brain_tumor_model/resnet18_brain_tumor_finetuned.pth' # Make sure this path is correct
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 model = ResNetFineTuned(num_classes=4).to(device)
