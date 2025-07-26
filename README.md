@@ -176,3 +176,11 @@ Developed with ❤️ using:
 * ResNet18
 * HTML/CSS + JS
 ---
+## 🚀 Features
+
+* Upload MRI scans via a web UI
+* Automatically predicts tumor type: `glioma`, `meningioma`, `pituitary`, or `no_tumor`
+* Backend powered by fine-tuned **ResNet18**
+* Visual metrics: confusion matrix, accuracy curves, and class-wise scores
+* Two training options:
+
