@@ -204,7 +204,7 @@ def train_model():
     plt.title('Per-Class Metrics')
     plt.legend()
     plt.tight_layout()
-    plt.savefig(os.path.join(model_save_dir, 'per_class_metrics.png'))
+    plt.savefig(os.path.join(model_save_dir, 'per_class_metrics_finetune.png'))
     plt.show()
 
     # === Print Overall Accuracy ===
