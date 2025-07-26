@@ -161,12 +161,13 @@ Weight Decay	1e-4
 Batch Size	32
 Epochs	30
 Loss Function	Weighted CrossEntropyLoss
+```
 
 
 
 
 
-### 📬 Credits
+##📬 Credits
 
 Developed with ❤️ using:
 
