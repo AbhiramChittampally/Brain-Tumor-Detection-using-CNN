@@ -6,30 +6,24 @@
 project/
 │
 ├── app.py                         # Flask app for prediction
-├── train.py                       # Training with extra web data
-├── train0.py                      # Base training script
+├── train_enhanced.py              #Training the model
+
 │
 ├── templates/
 │   └── index.html                 # Frontend interface
+│   └── about.html                 # Frontend interface
+│   └── scan.html                 # Frontend interface
 │
 ├── brain_tumor_model/
-│   ├── resnet18_brain_tumor.pth              # Pretrained model
-│   ├── resnet18_brain_tumor_finetuned.pth    # Fine-tuned model
-│   ├── training_metrics_finetune.png         # Loss & accuracy plots
-│   ├── confusion_matrix_finetune.png         # Confusion matrix
+│   ├── resnet18_brain_tumor.pth              # trained model
+│   ├── training_metrics.png         # Loss & accuracy plots
+│   ├── confusion_matrix.png         # Confusion matrix
 │   └── per_class_metrics.png                 # Bar chart of class metrics
 ```
 ```
-To train the model download Kaggles brain tumor dataset of MRI scans and create folders in the same directory as brain_tumor_dataset and for fine tuning create the directories:
-brain_tumor_extra_data/
-├── glioma/
-├── meningioma/
-├── pituitary/
-├── no tumor/
-and
-├── combined_dataset/
-│   ├── Training/
-│   └── Testing/
+To train the model download Kaggles brain tumor dataset of MRI scans and create folders in the same directory as :
+brain_tumor_dataset/
+
 ```
 ---
 
@@ -41,8 +35,8 @@ and
 * Visual metrics: confusion matrix, accuracy curves, and class-wise scores
 * Two training options:
 
-  * `train.py` — includes extra web data
-  * `train0.py` — clean training on original dataset
+  
+  * `train_enhanced.py` — clean training on original dataset
 
 ---
 
@@ -56,16 +50,16 @@ pip install torch torchvision flask scikit-learn matplotlib seaborn
 
 ### 2. Model Training (Optional)
 
-You can retrain or fine-tune:
+
 
 ```bash
-python train0.py       # For clean training
-python train.py        # With extra data merging
+
+python train_enhanced.py        # With extra data merging
 ```
 
 ### 3. Run the Flask App
 
-Make sure the `resnet18_brain_tumor_finetuned.pth` file is present in `brain_tumor_model/`.
+Make sure the `resnet18_brain_tumor` file is present in `brain_tumor_model/`.
 
 ```bash
 python app.py
