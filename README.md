@@ -165,9 +165,9 @@ Loss Function	Weighted CrossEntropyLoss
 
 
 
+---
 
-
-📬 Credits
+#📬 Credits
 
 Developed with ❤️ using:
 
@@ -175,3 +175,4 @@ Developed with ❤️ using:
 * Flask
 * ResNet18
 * HTML/CSS + JS
+---
