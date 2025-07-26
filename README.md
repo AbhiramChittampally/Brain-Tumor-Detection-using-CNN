@@ -116,25 +116,55 @@ The model achieved **overall accuracy ranging between 97% to 99%** during valida
 
 ## 🧠 Model Architecture
 
-* **Base**: ResNet18 pretrained on ImageNet
-* **Fine-tuning**:
+### Base Model
+- **ResNet18** pretrained on ImageNet
+- Input resolution: 224×224 RGB images
 
-  * Layers `layer3`, `layer4`, and `fc` unfrozen
-  * Added:
+### Fine-tuning Strategy
+| Layer Group | Trainable | Details |
+|-------------|-----------|---------|
+| Layer 1-2   | ❌ Frozen | Maintain pretrained features |
+| **Layer 3** | ✅ Unfrozen | Gradual fine-tuning |
+| **Layer 4** | ✅ Unfrozen | Gradual fine-tuning |
+| **Classifier** | ✅ Replaced | Custom head (see below) |
 
-    * `Linear → ReLU → Dropout(0.3) → Linear(num_classes=4)`
+### Custom Classifier Head
+```python
+Sequential(
+  Linear(in_features=512, out_features=512),
+  BatchNorm1d(512),
+  ReLU(),
+  Dropout(p=0.5),
+  Linear(512, out_features=4)
+)
+Output Layers
+4 neurons corresponding to brain tumor classes:
 
----
 
-## 🛠️ To Improve Further
+0: glioma
+1: meningioma
+2: notumor
+3: pituitary
+Key Features
+Progressive Unfreezing: Only deeper layers (3+) fine-tuned
 
-* Add Grad-CAM visualization for heatmaps
-* Add file size & format validations
-* Include background image for enhanced UI
-* Use `Flask-CORS` for cross-origin frontend hosting
-* Dockerize the app for easier deployment
+Regularization: 50% Dropout + BatchNorm for robustness
 
----
+Class Balancing: Weighted loss function handles dataset imbalance
+
+Adaptive Learning: ReduceLROnPlateau scheduler (patience=2, factor=0.5)
+
+Training Configuration
+Parameter	Value
+Optimizer	AdamW
+Weight Decay	1e-4
+Batch Size	32
+Epochs	30
+Loss Function	Weighted CrossEntropyLoss
+
+
+
+
 
 ## 📬 Credits
 
