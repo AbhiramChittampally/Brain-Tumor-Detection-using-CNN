@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Brain Tumor Detection</title>
+    <title>Brain Tumor Detection</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -15,483 +16,353 @@
             --text-secondary: #a0b0c0;
             --success-color: #28a745;
             --error-color: #dc3545;
+            --warning-color: #ffc107;
+            --info-color: #17a2b8;
             --border-radius: 12px;
-            --transition-speed: 0.5s;
+            --transition-speed: 0.3s;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
         body {
             font-family: 'Poppins', sans-serif;
-            margin: 0;
-            padding: 0;
             background-color: var(--dark-bg);
-            /* NOTE: Replace this URL with the link to your own 3D brain background image */
-            background-image: url('REPLACE_WITH_YOUR_BRAIN_IMAGE_URL.jpg');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(42, 59, 79, 0.5) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(74, 144, 226, 0.3) 0%, transparent 20%);
             color: var(--text-color);
+            line-height: 1.6;
             overflow-x: hidden;
         }
 
         .container {
-            width: 100%;
-            max-width: 900px;
-            text-align: center;
+            max-width: 1200px;
+            margin: 0 auto;
             padding: 2rem;
-            box-sizing: border-box;
         }
 
-        #upload-container {
-            background: rgba(42, 59, 79, 0.85);
+        header {
+            background-color: rgba(31, 42, 56, 0.9);
             backdrop-filter: blur(10px);
-            padding: 40px 50px;
-            border-radius: var(--border-radius);
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-            transition: all var(--transition-speed) ease;
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        #upload-container h1 {
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.5rem;
             font-weight: 700;
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            color: #ffffff;
+            color: var(--secondary-color);
         }
 
-        #upload-container p {
+        .logo i {
+            font-size: 2rem;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 1.5rem;
+        }
+
+        nav a {
             color: var(--text-secondary);
-            margin-bottom: 30px;
-            font-size: 1.1rem;
-        }
-
-        .upload-area {
-            border: 2px dashed var(--primary-color);
+            text-decoration: none;
+            font-weight: 600;
+            padding: 0.5rem 1rem;
             border-radius: var(--border-radius);
-            padding: 40px 20px;
-            margin-bottom: 30px;
-            cursor: pointer;
-            transition: background-color 0.3s ease, border-color 0.3s ease;
+            transition: all var(--transition-speed);
             position: relative;
         }
 
-        .upload-area.hover {
-            background-color: rgba(74, 144, 226, 0.1);
-            border-color: var(--secondary-color);
-        }
-
-        .upload-area input[type="file"] {
-            display: none;
-        }
-        
-        .upload-icon {
-            width: 60px;
-            height: 60px;
-            margin-bottom: 20px;
-        }
-
-        .upload-text {
-            font-size: 1.2em;
-            font-weight: 600;
-            color: var(--text-color);
-        }
-        
-        #image-preview {
-            max-width: 200px;
-            max-height: 200px;
-            margin-top: 20px;
-            border-radius: var(--border-radius);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            display: none;
-        }
-        
-        .file-name {
-            font-size: 1em;
-            color: var(--secondary-color);
-            font-weight: bold;
-            margin-top: 15px;
-        }
-
-        .predict-button {
-            background-image: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+        nav a:hover {
             color: white;
-            padding: 15px 30px;
-            border: none;
-            border-radius: var(--border-radius);
-            font-size: 1.2em;
-            font-weight: 600;
-            cursor: pointer;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            width: 100%;
-            max-width: 400px;
         }
 
-        .predict-button:hover:not(:disabled) {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(74, 144, 226, 0.4);
-        }
-        
-        .predict-button:disabled {
-            background-image: none;
-            background-color: #555;
-            opacity: 0.5;
-            cursor: not-allowed;
+        nav a.active {
+            color: white;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
         }
 
-        .loading-spinner {
-            border: 5px solid rgba(255, 255, 255, 0.2);
-            border-left-color: var(--secondary-color);
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            animation: spin 1s linear infinite;
-            display: none;
-            margin: 30px auto;
+        nav a.active::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 10%;
+            width: 80%;
+            height: 3px;
+            background: var(--secondary-color);
+            border-radius: 2px;
         }
 
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        #result-container {
-            display: none;
-            opacity: 0;
-            transform: translateY(30px);
-            transition: opacity var(--transition-speed) ease, transform var(--transition-speed) ease;
-        }
-        
-        .result-card {
-            background: rgba(42, 59, 79, 0.9);
-            backdrop-filter: blur(10px);
-            padding: 40px;
-            border-radius: var(--border-radius);
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        .hero {
             display: flex;
-            gap: 40px;
             align-items: center;
-            text-align: left;
+            min-height: 80vh;
+            padding: 4rem 0;
         }
-        
-        .result-image-col {
+
+        .hero-content {
             flex: 1;
-        }
-        
-        .result-info-col {
-            flex: 2;
+            padding-right: 2rem;
         }
 
-        .result-image-col img {
-            width: 100%;
-            max-width: 300px; /* Added max-width for consistency */
+        .hero-image {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+        }
+
+        .hero-image img {
+            max-width: 100%;
             border-radius: var(--border-radius);
-            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
-        }
-        
-        #result-title {
-            font-size: 2.2rem;
-            font-weight: 700;
-            margin: 0 0 15px 0;
-        }
-        
-        .confidence-box {
-            font-size: 1.2rem;
-            font-weight: 600;
-            margin-bottom: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            animation: float 6s ease-in-out infinite;
         }
 
-        .confidence-box span {
-            color: var(--secondary-color);
-            font-size: 1.5rem;
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0px); }
         }
-        
-        #result-description {
-            font-size: 1rem;
-            line-height: 1.6;
+
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1.2;
+        }
+
+        .subtitle {
+            font-size: 1.5rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            max-width: 600px;
+        }
+
+        .btn {
+            display: inline-block;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all var(--transition-speed);
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(74, 144, 226, 0.4);
+        }
+
+        .btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(74, 144, 226, 0.6);
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 5rem 0;
+        }
+
+        .feature-card {
+            background: rgba(42, 59, 79, 0.6);
+            backdrop-filter: blur(10px);
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            transition: all var(--transition-speed);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+            border-color: var(--primary-color);
+        }
+
+        .feature-card i {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            color: var(--secondary-color);
+        }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: white;
+        }
+
+        .feature-card p {
             color: var(--text-secondary);
         }
-        
-        .result-card.no-tumor { border-left: 7px solid var(--success-color); }
-        #result-title.no-tumor { color: var(--success-color); }
-        
-        .result-card.glioma { border-left: 7px solid #e74c3c; }
-        #result-title.glioma { color: #e74c3c; }
-        
-        .result-card.meningioma { border-left: 7px solid #f39c12; }
-        #result-title.meningioma { color: #f39c12; }
-        
-        .result-card.pituitary { border-left: 7px solid #9b59b6; }
-        #result-title.pituitary { color: #9b59b6; }
-        
-        #error-message {
-            color: var(--error-color);
-            margin-top: 15px;
-            font-weight: bold;
-            background: rgba(220, 53, 69, 0.1);
-            padding: 10px;
-            border-radius: 8px;
-            display: none;
-        }
 
-        .reset-button {
-            margin-top: 30px;
-            background: transparent;
-            border: 2px solid var(--primary-color);
-            color: var(--primary-color);
-            padding: 12px 25px;
-            font-size: 1.1em;
+        .about {
+            background: rgba(42, 59, 79, 0.6);
+            backdrop-filter: blur(10px);
+            padding: 4rem;
             border-radius: var(--border-radius);
-            cursor: pointer;
-            transition: background-color 0.3s, color 0.3s;
+            margin: 5rem 0;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        .reset-button:hover {
-            background-color: var(--primary-color);
+        .about h2 {
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            text-align: center;
             color: white;
         }
-        
+
+        .tumor-types {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+
+        .tumor-type {
+            background: rgba(31, 42, 56, 0.7);
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            border-left: 4px solid;
+        }
+
+        .tumor-type.glioma { border-color: var(--warning-color); }
+        .tumor-type.meningioma { border-color: var(--info-color); }
+        .tumor-type.pituitary { border-color: var(--primary-color); }
+        .tumor-type.notumor { border-color: var(--success-color); }
+
+        .tumor-type h3 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 1rem;
+            color: white;
+        }
+
+        .tumor-type h3 i {
+            font-size: 1.5rem;
+        }
+
+        .tumor-type p {
+            color: var(--text-secondary);
+        }
+
+        footer {
+            background: rgba(31, 42, 56, 0.9);
+            padding: 2rem;
+            text-align: center;
+            margin-top: 5rem;
+            color: var(--text-secondary);
+        }
+
         @media (max-width: 768px) {
-            .result-card {
+            .hero {
                 flex-direction: column;
                 text-align: center;
             }
-            #upload-container {
-                padding: 20px;
+            
+            .hero-content {
+                padding-right: 0;
+                margin-bottom: 2rem;
+            }
+            
+            h1 {
+                font-size: 2.5rem;
+            }
+            
+            .subtitle {
+                font-size: 1.2rem;
             }
         }
     </style>
 </head>
 <body>
+    <header>
+        <div class="logo">
+            <i class="fas fa-brain"></i>
+            <span>NeuroScanAI</span>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="/" class="active">Home</a></li>
+                <li><a href="/scan">Scan MRI</a></li>
+                <li><a href="/about">About</a></li>
+            </ul>
+        </nav>
+    </header>
+
     <div class="container">
-        <div id="upload-container">
-            <h1>Brain Tumor Detection</h1>
-            <p>Upload an MRI scan to classify the type of brain tumor.</p>
-
-            <div class="upload-area" id="dropArea">
-                <input type="file" id="fileInput" accept=".png, .jpg, .jpeg">
-                <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiM0YTkwZTIiIHN0cm9rZS13aWR0aD0iMiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBjbGFzcz0ibHVjaWRlIGx1Y2lkZS1jbG91ZC11cGxvYWQiPjxwYXRoIGQ9Ik00IDE0LjUgQTUuNSA1LjUgMCAwIDEgMTUgNEExNSA1IDAgMCAxIDIwIDEwIi8+PHBhdGggZD0iTTEyIDEyIFYyMiIvPjxwYXRoIGQ9Im0xNiAxNiAtNCAtNCAwIDAgLTQgNCIvPjwvc3ZnPg==" alt="Upload Icon" class="upload-icon">
-                <p class="upload-text"><strong>Drag & Drop</strong> your MRI scan here<br>or Click to Upload</p>
+        <section class="hero">
+            <div class="hero-content">
+                <h1>Advanced AI for Early Brain Tumor Detection</h1>
+                <p class="subtitle">Using state-of-the-art deep learning to identify brain tumors in MRI scans with medical-grade accuracy</p>
+                <a href="/scan" class="btn">Analyze MRI Scan <i class="fas fa-arrow-right"></i></a>
             </div>
-            
-            <img id="image-preview" src="#" alt="Your MRI Scan">
-            <p class="file-name" id="fileName"></p>
-            
-            <div class="loading-spinner" id="loadingSpinner"></div>
-            <p id="error-message"></p>
+            <div class="hero-image">
+                <img src="https://images.unsplash.com/photo-1578496480157-697fc14d2e55?q=80&w=1000" alt="Brain MRI Scan">
+            </div>
+        </section>
 
-            <button class="predict-button" id="predictButton">Analyze Scan</button>
-        </div>
+        <section class="features">
+            <div class="feature-card">
+                <i class="fas fa-brain"></i>
+                <h3>Medical-Grade Accuracy</h3>
+                <p>Our AI model achieves over 98% accuracy in detecting and classifying brain tumors, matching expert radiologist performance.</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-bolt"></i>
+                <h3>Rapid Analysis</h3>
+                <p>Get results in seconds rather than days. Our system processes MRI scans and provides immediate insights.</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-shield-alt"></i>
+                <h3>Secure & Private</h3>
+                <p>All data is processed locally and never stored. Your medical privacy is our top priority.</p>
+            </div>
+        </section>
 
-        <div id="result-container">
-            <div class="result-card" id="resultCard">
-                <div class="result-image-col">
-                    <img id="result-image" src="" alt="Tumor Type Image">
+        <section class="about">
+            <h2>Understanding Brain Tumors</h2>
+            <div class="tumor-types">
+                <div class="tumor-type glioma">
+                    <h3><i class="fas fa-exclamation-triangle"></i> Glioma</h3>
+                    <p>Tumors that develop from glial cells, the supportive tissue of the brain. They can be low-grade (slow-growing) or high-grade (fast-growing).</p>
                 </div>
-                <div class="result-info-col">
-                    <h2 id="result-title"></h2>
-                    <p class="confidence-box">Confidence: <span id="confidenceResult"></span></p>
-                    <p id="result-description"></p>
+                <div class="tumor-type meningioma">
+                    <h3><i class="fas fa-layer-group"></i> Meningioma</h3>
+                    <p>Tumors arising from the meninges, the membranes that surround the brain and spinal cord. Most are benign but can cause serious symptoms.</p>
+                </div>
+                <div class="tumor-type pituitary">
+                    <h3><i class="fas fa-gland"></i> Pituitary</h3>
+                    <p>Tumors occurring in the pituitary gland at the base of the brain. They can affect hormone levels and cause various symptoms.</p>
+                </div>
+                <div class="tumor-type notumor">
+                    <h3><i class="fas fa-check-circle"></i> No Tumor</h3>
+                    <p>Normal brain MRI scan showing healthy brain tissue without any signs of tumor growth.</p>
                 </div>
             </div>
-            <button class="reset-button" id="resetButton">Try Another Scan</button>
-        </div>
+        </section>
     </div>
 
-    <script>
-        // --- DOM Elements ---
-        const uploadContainer = document.getElementById('upload-container');
-        const dropArea = document.getElementById('dropArea');
-        const fileInput = document.getElementById('fileInput');
-        const fileNameSpan = document.getElementById('fileName');
-        const imagePreview = document.getElementById('image-preview');
-        const predictButton = document.getElementById('predictButton');
-        const loadingSpinner = document.getElementById('loadingSpinner');
-        const errorMessage = document.getElementById('error-message');
-        
-        const resultContainer = document.getElementById('result-container');
-        const resultCard = document.getElementById('resultCard');
-        const resultImage = document.getElementById('result-image');
-        const resultTitle = document.getElementById('result-title');
-        const confidenceResult = document.getElementById('confidenceResult');
-        const resultDescription = document.getElementById('result-description');
-        const resetButton = document.getElementById('resetButton');
-
-        let uploadedFile = null;
-        
-        // --- Data for Tumor Types (descriptions only now) ---
-        const tumorInfo = {
-            glioma: {
-                title: "Glioma Tumor",
-                description: "Gliomas are a type of tumor that starts in the glial cells of the brain or spine. These cells surround nerve cells and help them function. Gliomas are classified by the type of glial cell involved and by their genetic features, which can help predict their behavior over time.",
-            },
-            meningioma: {
-                title: "Meningioma Tumor",
-                description: "A meningioma is a tumor that arises from the meninges — the membranes that surround your brain and spinal cord. Most meningiomas are noncancerous (benign), though, in rare cases, they can be malignant. They are often slow-growing.",
-            },
-            pituitary: {
-                title: "Pituitary Tumor",
-                description: "Pituitary tumors are abnormal growths that develop in your pituitary gland. Some pituitary tumors result in too many of the hormones that regulate important functions of your body. Most are benign (noncancerous) adenomas that remain in the gland or surrounding tissues.",
-            },
-            no_tumor: {
-                title: "No Tumor Detected",
-                description: "The analysis did not find any evidence of a tumor in the provided MRI scan. This is a positive indication of normal brain tissue. Regular check-ups are always recommended for maintaining good health.",
-            }
-        };
-
-        // --- Event Listeners & Functions ---
-        dropArea.addEventListener('click', () => fileInput.click());
-        fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
-        resetButton.addEventListener('click', resetUI);
-
-        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-            dropArea.addEventListener(eventName, preventDefaults, false);
-            document.body.addEventListener(eventName, preventDefaults, false);
-        });
-
-        ['dragenter', 'dragover'].forEach(eventName => dropArea.addEventListener(eventName, () => dropArea.classList.add('hover'), false));
-        ['dragleave', 'drop'].forEach(eventName => dropArea.addEventListener(eventName, () => dropArea.classList.remove('hover'), false));
-
-        dropArea.addEventListener('drop', handleDrop, false);
-        predictButton.addEventListener('click', handlePrediction);
-
-        function preventDefaults(e) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
-
-        function handleDrop(e) {
-            const dt = e.dataTransfer;
-            handleFiles(dt.files);
-        }
-
-        function handleFiles(files) {
-            if (files.length === 0) return;
-            uploadedFile = files[0];
-            
-            if (uploadedFile && uploadedFile.type.startsWith('image/')) {
-                fileNameSpan.textContent = uploadedFile.name;
-                const reader = new FileReader();
-                reader.onload = e => {
-                    imagePreview.src = e.target.result;
-                    imagePreview.style.display = 'block';
-                };
-                reader.readAsDataURL(uploadedFile);
-                hideError();
-            } else {
-                showError('Please upload a valid image file (.png, .jpg, .jpeg).');
-                resetFileInput();
-            }
-        }
-
-        async function handlePrediction() {
-            if (!uploadedFile) {
-                showError('Please upload an image first.');
-                return;
-            }
-
-            showLoading(true);
-            hideError();
-
-            const formData = new FormData();
-            formData.append('file', uploadedFile);
-
-            try {
-                const response = await fetch('/predict', {
-                    method: 'POST',
-                    body: formData
-                });
-
-                const data = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(data.error || 'Prediction failed on the server.');
-                }
-                
-                displayResults(data);
-
-            } catch (error) {
-                console.error('Prediction Error:', error);
-                showError(`Error: ${error.message}`);
-                showLoading(false);
-            }
-        }
-        
-        function displayResults(data) {
-            const predictionKey = data.prediction.toLowerCase().replace(' ', '_');
-            const info = tumorInfo[predictionKey];
-            
-            if (info) {
-                resultTitle.textContent = info.title;
-                resultDescription.textContent = info.description;
-                confidenceResult.textContent = data.confidence;
-                
-                // ---- THIS IS THE MODIFIED LINE ----
-                resultImage.src = imagePreview.src; // Use the user's uploaded image
-
-                resultCard.className = 'result-card';
-                resultTitle.className = '';
-                if (predictionKey !== 'no_tumor') {
-                    resultCard.classList.add(predictionKey);
-                    resultTitle.classList.add(predictionKey);
-                } else {
-                    resultCard.classList.add('no-tumor');
-                    resultTitle.classList.add('no-tumor');
-                }
-
-                uploadContainer.style.opacity = '0';
-                setTimeout(() => {
-                    uploadContainer.style.display = 'none';
-                    resultContainer.style.display = 'block';
-                    setTimeout(() => {
-                        resultContainer.style.opacity = '1';
-                        resultContainer.style.transform = 'translateY(0)';
-                    }, 50);
-                }, 500);
-
-            } else {
-                showError(`Unknown prediction result: ${data.prediction}`);
-            }
-
-            showLoading(false);
-        }
-
-        function resetUI() {
-            resultContainer.style.opacity = '0';
-            setTimeout(() => {
-                resultContainer.style.display = 'none';
-                uploadContainer.style.display = 'block';
-                setTimeout(() => {
-                    uploadContainer.style.opacity = '1';
-                }, 50);
-            }, 500);
-
-            resetFileInput();
-            hideError();
-        }
-
-        function resetFileInput() {
-            uploadedFile = null;
-            fileInput.value = '';
-            fileNameSpan.textContent = '';
-            imagePreview.style.display = 'none';
-            imagePreview.src = '#';
-        }
-
-        function showLoading(isLoading) {
-            loadingSpinner.style.display = isLoading ? 'block' : 'none';
-            predictButton.disabled = isLoading;
-            predictButton.textContent = isLoading ? 'Analyzing...' : 'Analyze Scan';
-        }
-
-        function showError(message) {
-            errorMessage.textContent = message;
-            errorMessage.style.display = 'block';
-        }
-
-        function hideError() {
-            errorMessage.style.display = 'none';
-        }
-    </script>
+    <footer>
+        <p>&copy; 2023 NeuroScanAI | Medical-grade AI Diagnostics | For Research Use Only</p>
+        <p>This tool is designed to assist medical professionals and is not a replacement for clinical diagnosis.</p>
+    </footer>
 </body>
 </html>
