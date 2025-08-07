@@ -400,7 +400,7 @@
     <header>
         <div class="logo">
             <i class="fas fa-brain"></i>
-            <span>NeuroScanAI</span>
+            <span>BrainTumorDetection</span>
         </div>
         <nav>
             <ul>
@@ -463,13 +463,12 @@
         </div>
         
         <footer>
-            <p>&copy; 2023 NeuroScanAI | Medical-grade AI Diagnostics | For Research Use Only</p>
+            <p>&copy; 2025 Brain Tumor Detection Using CNN | Medical-grade AI Diagnostics | For Research Use Only</p>
             <p>This tool is designed to assist medical professionals and is not a replacement for clinical diagnosis.</p>
         </footer>
     </div>
 
     <script>
-        // DOM Elements
         const dropArea = document.getElementById('dropArea');
         const fileInput = document.getElementById('fileInput');
         const fileName = document.getElementById('fileName');
@@ -488,13 +487,11 @@
         
         let uploadedFile = null;
         
-        // Event Listeners
         dropArea.addEventListener('click', () => fileInput.click());
         fileInput.addEventListener('change', handleFileSelect);
         analyzeBtn.addEventListener('click', analyzeImage);
         newScanBtn.addEventListener('click', resetUI);
         
-        // Drag and drop events
         ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
             dropArea.addEventListener(eventName, preventDefaults, false);
         });
@@ -509,7 +506,6 @@
         
         dropArea.addEventListener('drop', handleDrop, false);
         
-        // Functions
         function preventDefaults(e) {
             e.preventDefault();
             e.stopPropagation();
@@ -539,14 +535,12 @@
             
             const file = files[0];
             
-            // Validate file type
             if (!file.type.match('image.*')) {
                 showError('Please upload an image file (JPG, PNG)');
                 return;
             }
             
-            // Validate file size
-            if (file.size > 5 * 1024 * 1024) { // 5MB
+            if (file.size > 5 * 1024 * 1024) { 
                 showError('File size too large. Please upload an image smaller than 5MB.');
                 return;
             }
@@ -556,7 +550,6 @@
             analyzeBtn.disabled = false;
             hideError();
             
-            // Show preview
             const reader = new FileReader();
             reader.onload = function(e) {
                 imagePreview.src = e.target.result;
@@ -570,17 +563,14 @@
                 showError('Please upload an MRI scan first');
                 return;
             }
-            
-            // Show loading state
+
             loading.style.display = 'block';
             analyzeBtn.disabled = true;
             hideError();
             
-            // Create FormData
             const formData = new FormData();
             formData.append('file', uploadedFile);
             
-            // Send to server for processing
             fetch('/api/predict', {
                 method: 'POST',
                 body: formData
@@ -606,13 +596,11 @@
         }
         
         function displayResults(data) {
-            // Set result content
             resultImage.src = imagePreview.src;
             resultTitle.textContent = formatResultTitle(data.class);
             confidenceValue.textContent = data.confidence;
             resultDescription.textContent = getResultDescription(data.class);
             
-            // Set probability distribution
             probGrid.innerHTML = '';
             for (const [tumorType, probability] of Object.entries(data.probabilities)) {
                 const probItem = document.createElement('div');
@@ -624,11 +612,9 @@
                 probGrid.appendChild(probItem);
             }
             
-            // Set card class based on result
             resultCard.className = 'result-card';
             resultCard.classList.add(data.class);
             
-            // Show results
             resultContainer.style.display = 'block';
         }
         
@@ -663,7 +649,6 @@
         }
         
         function resetUI() {
-            // Reset all elements
             fileInput.value = '';
             fileName.textContent = '';
             imagePreview.style.display = 'none';
