@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Brain Tumor Detection</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -231,7 +231,8 @@
 
         .tumor-types {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            /* grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); */
+            grid-template-columns: repeat(2, 1fr); ;
             gap: 2rem;
         }
 
@@ -296,7 +297,7 @@
     <header>
         <div class="logo">
             <i class="fas fa-brain"></i>
-            <span>NeuroScanAI</span>
+            <span>BrainTumorDetection</span>
         </div>
         <nav>
             <ul>
@@ -341,7 +342,7 @@
             <h2>Understanding Brain Tumors</h2>
             <div class="tumor-types">
                 <div class="tumor-type glioma">
-                    <h3><i class="fas fa-exclamation-triangle"></i> Glioma</h3>
+                    <h3><i class="fas fa-brain"></i> Glioma</h3>
                     <p>Tumors that develop from glial cells, the supportive tissue of the brain. They can be low-grade (slow-growing) or high-grade (fast-growing).</p>
                 </div>
                 <div class="tumor-type meningioma">
@@ -349,7 +350,7 @@
                     <p>Tumors arising from the meninges, the membranes that surround the brain and spinal cord. Most are benign but can cause serious symptoms.</p>
                 </div>
                 <div class="tumor-type pituitary">
-                    <h3><i class="fas fa-gland"></i> Pituitary</h3>
+                    <h3><i class="fas fa-dna"></i> Pituitary</h3>
                     <p>Tumors occurring in the pituitary gland at the base of the brain. They can affect hormone levels and cause various symptoms.</p>
                 </div>
                 <div class="tumor-type notumor">
@@ -361,7 +362,7 @@
     </div>
 
     <footer>
-        <p>&copy; 2023 NeuroScanAI | Medical-grade AI Diagnostics | For Research Use Only</p>
+        <p>&copy; 2025 Brain Tumor Detection Using CNN | Medical-grade AI Diagnostics | For Research Use Only</p>
         <p>This tool is designed to assist medical professionals and is not a replacement for clinical diagnosis.</p>
     </footer>
 </body>
