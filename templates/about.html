@@ -154,9 +154,11 @@
 
         .tech-stack {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            /* grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); */
+            grid-template-columns: repeat(2,1fr);
             gap: 1.5rem;
             margin-top: 2rem;
+            margin-bottom: 2rem;
         }
 
         .tech-item {
@@ -217,6 +219,23 @@
             font-style: italic;
         }
 
+        .tech-item .icon {
+            width: 40px;
+            height: 40px;
+            object-fit: contain;
+            margin-bottom: 1rem;
+
+            filter: brightness(0) saturate(100%) invert(64%) sepia(42%) saturate(540%) hue-rotate(118deg) brightness(98%) contrast(92%);
+            opacity: 0.95;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+
+        .tech-item .icon:hover {
+            transform: scale(1.05);
+            opacity: 1;
+        }
+
+
         .btn {
             display: inline-block;
             background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
@@ -261,7 +280,7 @@
     <header>
         <div class="logo">
             <i class="fas fa-brain"></i>
-            <span>NeuroScanAI</span>
+            <span>BrainTumorDetection</span>
         </div>
         <nav>
             <ul>
@@ -311,7 +330,8 @@
                             <h3>Python</h3>
                         </div>
                         <div class="tech-item">
-                            <i class="fas fa-brain"></i>
+                            <!-- <i class="fas fa-brain"></i> -->
+                             <img src="https://pytorch.org/assets/images/pytorch-logo.png" alt="PyTorch logo" class="icon">
                             <h3>PyTorch</h3>
                         </div>
                         <div class="tech-item">
@@ -343,7 +363,7 @@
         </div>
         
         <footer>
-            <p>&copy; 2023 NeuroScanAI | Medical-grade AI Diagnostics | For Research Use Only</p>
+            <p>&copy; 2025 Brain Tumor Detection Using CNN | Medical-grade AI Diagnostics | For Research Use Only</p>
             <p>This tool is designed to assist medical professionals and is not a replacement for clinical diagnosis.</p>
         </footer>
     </div>
