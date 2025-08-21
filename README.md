@@ -33,7 +33,7 @@ brain_tumor_dataset/
 * Automatically predicts tumor type: `glioma`, `meningioma`, `pituitary`, or `no_tumor`
 * Backend powered by fine-tuned **ResNet18**
 * Visual metrics: confusion matrix, accuracy curves, and class-wise scores
-* Two training options:
+* Training options:
 
   
   * `train_enhanced.py` — clean training on original dataset
