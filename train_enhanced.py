@@ -150,11 +150,19 @@ def train_model():
     num_epochs = 30
     best_val_acc = 0.0
     current_lr = optimizer.param_groups[0]['lr']
+    
+    # Initialize lists to store metrics
+    train_losses = []
+    val_losses = []
+    train_accs = []
+    val_accs = []
 
     for epoch in range(num_epochs):
         # Training phase
         model.train()
         train_loss = 0.0
+        train_correct = 0
+        train_total = 0
         for images, labels in train_loader:
             images, labels = images.to(device), labels.to(device)
             
@@ -165,12 +173,17 @@ def train_model():
             optimizer.step()
             
             train_loss += loss.item() * images.size(0)
+            
+            # Calculate training accuracy
+            _, predicted = torch.max(outputs, 1)
+            train_total += labels.size(0)
+            train_correct += (predicted == labels).sum().item()
         
         # Validation phase
         model.eval()
         val_loss = 0.0
-        correct = 0
-        total = 0
+        val_correct = 0
+        val_total = 0
         with torch.no_grad():
             for images, labels in val_loader:
                 images, labels = images.to(device), labels.to(device)
@@ -179,13 +192,20 @@ def train_model():
                 val_loss += loss.item() * images.size(0)
                 
                 _, predicted = torch.max(outputs, 1)
-                total += labels.size(0)
-                correct += (predicted == labels).sum().item()
+                val_total += labels.size(0)
+                val_correct += (predicted == labels).sum().item()
         
         # Calculate metrics
         avg_train_loss = train_loss / len(train_subset)
         avg_val_loss = val_loss / len(val_subset)
-        val_acc = 100 * correct / total
+        train_acc = 100 * train_correct / train_total
+        val_acc = 100 * val_correct / val_total
+        
+        # Store metrics for plotting
+        train_losses.append(avg_train_loss)
+        val_losses.append(avg_val_loss)
+        train_accs.append(train_acc)
+        val_accs.append(val_acc)
         
         scheduler.step(avg_val_loss)
         
@@ -196,7 +216,8 @@ def train_model():
         
         print(f"Epoch [{epoch+1}/{num_epochs}] | "
               f"Train Loss: {avg_train_loss:.4f} | Val Loss: {avg_val_loss:.4f} | "
-              f"Val Acc: {val_acc:.2f}% | LR: {current_lr:.7f}{lr_changed}")
+              f"Train Acc: {train_acc:.2f}% | Val Acc: {val_acc:.2f}% | "
+              f"LR: {current_lr:.7f}{lr_changed}")
         
         # Save best model
         if val_acc > best_val_acc:
@@ -205,8 +226,36 @@ def train_model():
             torch.save(model.state_dict(), model_path)
             print(f"Saved best model with val acc: {val_acc:.2f}%")
 
+    # Generate training metrics charts
+    plt.figure(figsize=(12, 5))
+    
+    # Loss chart
+    plt.subplot(1, 2, 1)
+    plt.plot(train_losses, label='Training Loss')
+    plt.plot(val_losses, label='Validation Loss')
+    plt.title('Loss over Epochs')
+    plt.xlabel('Epochs')
+    plt.ylabel('Loss')
+    plt.legend()
+    plt.grid(True)
+    
+    # Accuracy chart
+    plt.subplot(1, 2, 2)
+    plt.plot(train_accs, label='Training Accuracy')
+    plt.plot(val_accs, label='Validation Accuracy')
+    plt.title('Accuracy over Epochs')
+    plt.xlabel('Epochs')
+    plt.ylabel('Accuracy (%)')
+    plt.legend()
+    plt.grid(True)
+    
+    plt.tight_layout()
+    plt.savefig(os.path.join(model_save_dir, 'training_metrics.png'))
+    plt.show()
+    
     # Final evaluation on test set
-    test_model(model, test_loader, device, test_set.classes)  # Pass classes directly
+    test_acc = test_model(model, test_loader, device, test_set.classes)  # Pass classes directly
+    print(f"\nFinal Test Accuracy: {test_acc:.2f}%")
 
 def test_model(model, test_loader, device, target_names):
     model.eval()
@@ -228,7 +277,6 @@ def test_model(model, test_loader, device, target_names):
             all_preds.extend(predicted.cpu().numpy())
     
     test_acc = 100 * correct / total
-    print(f"\nTest Accuracy: {test_acc:.2f}%")
     
     # Detailed classification report
     print("\nClassification Report:")
@@ -268,6 +316,8 @@ def test_model(model, test_loader, device, target_names):
     plt.tight_layout()
     plt.savefig(os.path.join(model_save_dir, 'per_class_metrics.png'))
     plt.show()
+    
+    return test_acc
 
 if __name__ == '__main__':
-    train_model()
+    train_model() 
