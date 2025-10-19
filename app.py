@@ -19,8 +19,9 @@ CLASS_NAMES = ['glioma', 'meningioma', 'notumor', 'pituitary']
 class ResNetFineTuned(nn.Module):
     def __init__(self, num_classes=4):
         super(ResNetFineTuned, self).__init__()
-        weights = models.ResNet18_Weights.IMAGENET1K_V1
-        self.model = models.resnet18(weights=weights)
+        # Avoid downloading pretrained weights in production build environments
+        # We load our trained weights from disk below, so initialize without ImageNet weights
+        self.model = models.resnet18(weights=None)
         
         # Freeze layers
         for param in self.model.parameters():
@@ -48,12 +49,17 @@ class ResNetFineTuned(nn.Module):
 # Load the trained model
 def load_model():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    # Limit threads on small instances to avoid oversubscription
+    try:
+        torch.set_num_threads(max(1, os.cpu_count() // 2))
+    except Exception:
+        pass
     model = ResNetFineTuned(num_classes=4).to(device)
     model_path = 'brain_tumor_model/resnet18_brain_tumor.pth'
     
     try:
         model.load_state_dict(torch.load(model_path, map_location=device))
-    except:
+    except Exception:
         # Handle potential architecture mismatch
         model = torch.load(model_path, map_location=device)
     

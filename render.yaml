@@ -1,0 +1,30 @@
+services:
+  - type: web
+    name: brain-tumor-cnn
+    env: docker
+    plan: free
+    autoDeploy: true
+    envVars:
+      - key: WEB_CONCURRENCY
+        value: "2"
+      - key: GUNICORN_THREADS
+        value: "2"
+      - key: GUNICORN_TIMEOUT
+        value: "120"
+      - key: GUNICORN_LOGLEVEL
+        value: info
+
+# If you prefer native Python runtime on Render instead of Docker, use this config instead:
+# services:
+#   - type: web
+#     name: brain-tumor-cnn
+#     env: python
+#     plan: free
+#     buildCommand: pip install -r requirements.txt
+#     startCommand: gunicorn -c gunicorn.conf.py wsgi:application
+#     autoDeploy: true
+#     envVars:
+#       - key: PYTHON_VERSION
+#         value: 3.10.13
+#       - key: WEB_CONCURRENCY
+#         value: "2"

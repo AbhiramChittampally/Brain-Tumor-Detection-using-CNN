@@ -1,0 +1,20 @@
+# VCS
+.git
+.gitignore
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pyi
+
+# Not needed for runtime
+brain_tumor_dataset/
+uploads/
+*.ipynb
+*.md
+*.log
+
+# Keep model weights, exclude large images
+brain_tumor_model/*.png
